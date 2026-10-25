@@ -1,5 +1,6 @@
 package br.com.sistemas.chamados.controller;
-
+import br.com.sistemas.chamados.dto.AtribuirRequest;
+import br.com.sistemas.chamados.dto.StatusRequest;
 import br.com.sistemas.chamados.dto.ChamadoRequest;
 import br.com.sistemas.chamados.dto.ChamadoResponse;
 import br.com.sistemas.chamados.service.ChamadoService;
@@ -40,4 +41,16 @@ public class ChamadoController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void excluir(@PathVariable Long id) { service.excluir(id); }
+
+        @PatchMapping("/{id}/atribuir")
+    public ChamadoResponse atribuir(@PathVariable Long id,
+                                    @Valid @RequestBody AtribuirRequest dto) {
+        return service.atribuir(id, dto);
+    }
+
+    @PatchMapping("/{id}/status")
+    public ChamadoResponse alterarStatus(@PathVariable Long id,
+                                         @Valid @RequestBody StatusRequest dto) {
+        return service.alterarStatus(id, dto);
+    }
 }
