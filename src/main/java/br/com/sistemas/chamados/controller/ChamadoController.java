@@ -7,6 +7,12 @@ import br.com.sistemas.chamados.service.ChamadoService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import br.com.sistemas.chamados.entity.Prioridade;
+import br.com.sistemas.chamados.entity.StatusChamado;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PagedModel;
+import org.springframework.data.web.PageableDefault;
 
 import java.util.List;
 
@@ -26,9 +32,15 @@ public class ChamadoController {
         return service.criar(dto);
     }
 
-    @GetMapping
-    public List<ChamadoResponse> listar() { return service.listar(); }
-
+        @GetMapping
+    public PagedModel<ChamadoResponse> listar(
+            @RequestParam(required = false) StatusChamado status,
+            @RequestParam(required = false) Prioridade prioridade,
+            @RequestParam(required = false) Long clienteId,
+            @PageableDefault(size = 10, sort = "dataAbertura", direction = Sort.Direction.DESC)
+            Pageable pageable) {
+        return new PagedModel<>(service.listar(status, prioridade, clienteId, pageable));
+    }
     @GetMapping("/{id}")
     public ChamadoResponse buscar(@PathVariable Long id) { return service.buscar(id); }
 

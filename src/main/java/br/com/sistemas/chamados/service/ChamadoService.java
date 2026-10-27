@@ -17,6 +17,9 @@ import br.com.sistemas.chamados.repository.ChamadoRepository;
 import br.com.sistemas.chamados.repository.ClienteRepository;
 import br.com.sistemas.chamados.repository.TecnicoRepository;
 import org.springframework.stereotype.Service;
+import br.com.sistemas.chamados.entity.Prioridade;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.EnumSet;
@@ -60,8 +63,17 @@ public class ChamadoService {
         return ChamadoResponse.de(repository.save(chamado));
     }
 
-    public List<ChamadoResponse> listar() {
-        return repository.findAll().stream().map(ChamadoResponse::de).toList();
+        public Page<ChamadoResponse> listar(StatusChamado status, Prioridade prioridade,
+                                        Long clienteId, Pageable pageable) {
+        return repository.filtrar(status, prioridade, clienteId, pageable)
+                .map(ChamadoResponse::de);
+    }
+
+    public Page<ChamadoResponse> listarPorCliente(Long clienteId, Pageable pageable) {
+        if (!clienteRepository.existsById(clienteId)) {
+            throw new RecursoNaoEncontradoException("Cliente não encontrado: " + clienteId);
+        }
+        return listar(null, null, clienteId, pageable);
     }
 
     public ChamadoResponse buscar(Long id) {
