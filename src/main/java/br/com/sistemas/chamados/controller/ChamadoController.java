@@ -13,6 +13,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PagedModel;
 import org.springframework.data.web.PageableDefault;
+import br.com.sistemas.chamados.dto.ComentarioRequest;
+import br.com.sistemas.chamados.dto.ComentarioResponse;
 
 import java.util.List;
 
@@ -64,5 +66,17 @@ public class ChamadoController {
     public ChamadoResponse alterarStatus(@PathVariable Long id,
                                          @Valid @RequestBody StatusRequest dto) {
         return service.alterarStatus(id, dto);
+    }
+
+        @PostMapping("/{id}/comentarios")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ComentarioResponse comentar(@PathVariable Long id,
+                                       @Valid @RequestBody ComentarioRequest dto) {
+        return service.comentar(id, dto);
+    }
+
+    @GetMapping("/{id}/comentarios")
+    public List<ComentarioResponse> comentarios(@PathVariable Long id) {
+        return service.listarComentarios(id);
     }
 }

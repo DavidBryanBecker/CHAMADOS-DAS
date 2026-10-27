@@ -3,10 +3,14 @@ package br.com.sistemas.chamados.service;
 import br.com.sistemas.chamados.dto.AtribuirRequest;
 import br.com.sistemas.chamados.dto.ChamadoRequest;
 import br.com.sistemas.chamados.dto.ChamadoResponse;
+import br.com.sistemas.chamados.dto.ComentarioRequest;
+import br.com.sistemas.chamados.dto.ComentarioResponse;
 import br.com.sistemas.chamados.dto.StatusRequest;
 import br.com.sistemas.chamados.entity.Categoria;
 import br.com.sistemas.chamados.entity.Chamado;
 import br.com.sistemas.chamados.entity.Cliente;
+import br.com.sistemas.chamados.entity.Comentario;
+import br.com.sistemas.chamados.entity.Prioridade;
 import br.com.sistemas.chamados.entity.StatusChamado;
 import br.com.sistemas.chamados.entity.Tecnico;
 import br.com.sistemas.chamados.exception.ChamadoFechadoException;
@@ -15,11 +19,12 @@ import br.com.sistemas.chamados.exception.RegraNegocioException;
 import br.com.sistemas.chamados.repository.CategoriaRepository;
 import br.com.sistemas.chamados.repository.ChamadoRepository;
 import br.com.sistemas.chamados.repository.ClienteRepository;
+import br.com.sistemas.chamados.repository.ComentarioRepository;
 import br.com.sistemas.chamados.repository.TecnicoRepository;
-import org.springframework.stereotype.Service;
-import br.com.sistemas.chamados.entity.Prioridade;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.EnumSet;
@@ -44,15 +49,18 @@ public class ChamadoService {
     private final ClienteRepository clienteRepository;
     private final CategoriaRepository categoriaRepository;
     private final TecnicoRepository tecnicoRepository;
+    private final ComentarioRepository comentarioRepository;
 
     public ChamadoService(ChamadoRepository repository,
                           ClienteRepository clienteRepository,
                           CategoriaRepository categoriaRepository,
-                          TecnicoRepository tecnicoRepository) {
+                          TecnicoRepository tecnicoRepository,
+                          ComentarioRepository comentarioRepository) {
         this.repository = repository;
         this.clienteRepository = clienteRepository;
         this.categoriaRepository = categoriaRepository;
         this.tecnicoRepository = tecnicoRepository;
+        this.comentarioRepository = comentarioRepository;
     }
 
     public ChamadoResponse criar(ChamadoRequest dto) {
@@ -63,7 +71,7 @@ public class ChamadoService {
         return ChamadoResponse.de(repository.save(chamado));
     }
 
-        public Page<ChamadoResponse> listar(StatusChamado status, Prioridade prioridade,
+    public Page<ChamadoResponse> listar(StatusChamado status, Prioridade prioridade,
                                         Long clienteId, Pageable pageable) {
         return repository.filtrar(status, prioridade, clienteId, pageable)
                 .map(ChamadoResponse::de);
@@ -77,7 +85,8 @@ public class ChamadoService {
     }
 
     public ChamadoResponse buscar(Long id) {
-        return ChamadoResponse.de(buscarEntidade(id));
+        Chamado chamado = buscarEntidade(id);
+        return ChamadoResponse.de(chamado, listarComentarios(id));
     }
 
     public ChamadoResponse atualizar(Long id, ChamadoRequest dto) {
@@ -87,8 +96,11 @@ public class ChamadoService {
         return ChamadoResponse.de(repository.save(chamado));
     }
 
+    @Transactional
     public void excluir(Long id) {
-        repository.delete(buscarEntidade(id));
+        Chamado chamado = buscarEntidade(id);
+        comentarioRepository.deleteByChamadoId(id);
+        repository.delete(chamado);
     }
 
     public ChamadoResponse atribuir(Long id, AtribuirRequest dto) {
@@ -115,6 +127,22 @@ public class ChamadoService {
             chamado.setDataFechamento(LocalDateTime.now());
         }
         return ChamadoResponse.de(repository.save(chamado));
+    }
+
+    public ComentarioResponse comentar(Long chamadoId, ComentarioRequest dto) {
+        Chamado chamado = buscarEntidade(chamadoId);
+        Comentario comentario = new Comentario();
+        comentario.setTexto(dto.texto());
+        comentario.setAutor(dto.autor());
+        comentario.setData(LocalDateTime.now());
+        comentario.setChamado(chamado);
+        return ComentarioResponse.de(comentarioRepository.save(comentario));
+    }
+
+    public List<ComentarioResponse> listarComentarios(Long chamadoId) {
+        return comentarioRepository.findByChamadoIdOrderByDataAsc(chamadoId).stream()
+                .map(ComentarioResponse::de)
+                .toList();
     }
 
     private Chamado buscarEntidade(Long id) {
