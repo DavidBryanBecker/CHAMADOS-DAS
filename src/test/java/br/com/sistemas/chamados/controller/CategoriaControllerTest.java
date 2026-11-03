@@ -1,5 +1,6 @@
 package br.com.sistemas.chamados.controller;
 
+import br.com.sistemas.chamados.config.SecurityConfig;
 import br.com.sistemas.chamados.dto.CategoriaResponse;
 import br.com.sistemas.chamados.exception.RecursoNaoEncontradoException;
 import br.com.sistemas.chamados.exception.RegraNegocioException;
@@ -7,7 +8,9 @@ import br.com.sistemas.chamados.service.CategoriaService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -18,6 +21,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(CategoriaController.class)
+@Import(SecurityConfig.class)
+@WithMockUser(roles = "ADMIN")
 class CategoriaControllerTest {
 
     @Autowired
