@@ -1,20 +1,22 @@
 package br.com.sistemas.chamados.controller;
+
 import br.com.sistemas.chamados.dto.AtribuirRequest;
-import br.com.sistemas.chamados.dto.StatusRequest;
 import br.com.sistemas.chamados.dto.ChamadoRequest;
 import br.com.sistemas.chamados.dto.ChamadoResponse;
-import br.com.sistemas.chamados.service.ChamadoService;
-import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
-import br.com.sistemas.chamados.entity.Prioridade;
-import br.com.sistemas.chamados.entity.StatusChamado;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PagedModel;
-import org.springframework.data.web.PageableDefault;
 import br.com.sistemas.chamados.dto.ComentarioRequest;
 import br.com.sistemas.chamados.dto.ComentarioResponse;
+import br.com.sistemas.chamados.dto.StatusRequest;
+import br.com.sistemas.chamados.entity.Prioridade;
+import br.com.sistemas.chamados.entity.StatusChamado;
+import br.com.sistemas.chamados.service.ChamadoService;
+import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedModel;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -34,17 +36,21 @@ public class ChamadoController {
         return service.criar(dto);
     }
 
-        @GetMapping
+    @GetMapping
     public PagedModel<ChamadoResponse> listar(
             @RequestParam(required = false) StatusChamado status,
             @RequestParam(required = false) Prioridade prioridade,
             @RequestParam(required = false) Long clienteId,
+            @ParameterObject
             @PageableDefault(size = 10, sort = "dataAbertura", direction = Sort.Direction.DESC)
             Pageable pageable) {
         return new PagedModel<>(service.listar(status, prioridade, clienteId, pageable));
     }
+
     @GetMapping("/{id}")
-    public ChamadoResponse buscar(@PathVariable Long id) { return service.buscar(id); }
+    public ChamadoResponse buscar(@PathVariable Long id) {
+        return service.buscar(id);
+    }
 
     @PutMapping("/{id}")
     public ChamadoResponse atualizar(@PathVariable Long id,
@@ -54,9 +60,11 @@ public class ChamadoController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void excluir(@PathVariable Long id) { service.excluir(id); }
+    public void excluir(@PathVariable Long id) {
+        service.excluir(id);
+    }
 
-        @PatchMapping("/{id}/atribuir")
+    @PatchMapping("/{id}/atribuir")
     public ChamadoResponse atribuir(@PathVariable Long id,
                                     @Valid @RequestBody AtribuirRequest dto) {
         return service.atribuir(id, dto);
@@ -68,7 +76,7 @@ public class ChamadoController {
         return service.alterarStatus(id, dto);
     }
 
-        @PostMapping("/{id}/comentarios")
+    @PostMapping("/{id}/comentarios")
     @ResponseStatus(HttpStatus.CREATED)
     public ComentarioResponse comentar(@PathVariable Long id,
                                        @Valid @RequestBody ComentarioRequest dto) {

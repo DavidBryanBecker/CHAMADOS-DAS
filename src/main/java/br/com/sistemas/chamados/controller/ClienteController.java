@@ -6,6 +6,7 @@ import br.com.sistemas.chamados.dto.ClienteResponse;
 import br.com.sistemas.chamados.service.ChamadoService;
 import br.com.sistemas.chamados.service.ClienteService;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -46,6 +47,7 @@ public class ClienteController {
     @GetMapping("/{id}/chamados")
     public PagedModel<ChamadoResponse> chamadosDoCliente(
             @PathVariable Long id,
+            @ParameterObject
             @PageableDefault(size = 10, sort = "dataAbertura", direction = Sort.Direction.DESC)
             Pageable pageable) {
         return new PagedModel<>(chamadoService.listarPorCliente(id, pageable));
