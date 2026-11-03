@@ -21,4 +21,8 @@ public interface ChamadoRepository extends JpaRepository<Chamado, Long> {
                           @Param("prioridade") Prioridade prioridade,
                           @Param("clienteId") Long clienteId,
                           Pageable pageable);
+
+    long countByStatus(StatusChamado status);
+
+    long countByPrioridade(Prioridade prioridade);
 }
