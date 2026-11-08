@@ -23,6 +23,11 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/h2-console/**", "/swagger-ui/**",
                         "/swagger-ui.html", "/v3/api-docs/**").permitAll()
+                
+                .requestMatchers("/app/tecnicos/**").hasRole("ADMIN")
+                .requestMatchers("/app/categorias/novo").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/app/categorias").hasAnyRole("ADMIN", "TECNICO")
+                .requestMatchers("/app/categorias/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
                 .requestMatchers("/tecnicos/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/categorias/**").hasAnyRole("ADMIN", "TECNICO")
