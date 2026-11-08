@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Novo chamado')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: menu}"></nav>
+
+<div class="container mt-4" style="max-width: 700px;">
+    <h1 class="h3 mb-3">Novo chamado</h1>
+
+    <form th:action="@{/app/chamados}" th:object="${chamadoForm}" method="post" novalidate>
+
+        <div class="alert alert-danger" th:if="${#fields.hasGlobalErrors()}">
+            <p class="mb-0" th:each="e : ${#fields.globalErrors()}" th:text="${e}"></p>
+        </div>
+
+        <div class="mb-3">
+            <label for="titulo" class="form-label">Título</label>
+            <input type="text" id="titulo" th:field="*{titulo}" class="form-control"
+                   th:classappend="${#fields.hasErrors('titulo')} ? 'is-invalid'">
+            <div class="invalid-feedback" th:errors="*{titulo}"></div>
+        </div>
+
+        <div class="mb-3">
+            <label for="descricao" class="form-label">Descrição</label>
+            <textarea id="descricao" th:field="*{descricao}" rows="4" class="form-control"
+                      th:classappend="${#fields.hasErrors('descricao')} ? 'is-invalid'"></textarea>
+            <div class="invalid-feedback" th:errors="*{descricao}"></div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label for="prioridade" class="form-label">Prioridade</label>
+                <select id="prioridade" th:field="*{prioridade}" class="form-select"
+                        th:classappend="${#fields.hasErrors('prioridade')} ? 'is-invalid'">
+                    <option value="">Selecione...</option>
+                    <option th:each="p : ${prioridades}" th:value="${p}" th:text="${p}"></option>
+                </select>
+                <div class="invalid-feedback" th:errors="*{prioridade}"></div>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <label for="clienteId" class="form-label">Cliente</label>
+                <select id="clienteId" th:field="*{clienteId}" class="form-select"
+                        th:classappend="${#fields.hasErrors('clienteId')} ? 'is-invalid'">
+                    <option value="">Selecione...</option>
+                    <option th:each="c : ${clientes}" th:value="${c.id}" th:text="${c.nome}"></option>
+                </select>
+                <div class="invalid-feedback" th:errors="*{clienteId}"></div>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <label for="categoriaId" class="form-label">Categoria</label>
+                <select id="categoriaId" th:field="*{categoriaId}" class="form-select"
+                        th:classappend="${#fields.hasErrors('categoriaId')} ? 'is-invalid'">
+                    <option value="">Selecione...</option>
+                    <option th:each="c : ${categorias}" th:value="${c.id}" th:text="${c.nome}"></option>
+                </select>
+                <div class="invalid-feedback" th:errors="*{categoriaId}"></div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-success">Abrir chamado</button>
+        <a th:href="@{/app/chamados}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+</body>
+</html>

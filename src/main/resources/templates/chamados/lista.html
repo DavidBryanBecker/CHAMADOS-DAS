@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Chamados')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: menu}"></nav>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 mb-0">Chamados</h1>
+        <a th:href="@{/app/chamados/novo}" class="btn btn-primary">Novo chamado</a>
+    </div>
+
+    <div class="alert alert-success" th:if="${sucesso}" th:text="${sucesso}"></div>
+
+    <!-- Filtros -->
+    <form th:action="@{/app/chamados}" method="get" class="row g-2 mb-3">
+        <div class="col-md-3">
+            <select name="status" class="form-select">
+                <option value="">Todos os status</option>
+                <option th:each="s : ${statusLista}" th:value="${s}" th:text="${s}"
+                        th:selected="${s == filtroStatus}"></option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select name="prioridade" class="form-select">
+                <option value="">Todas as prioridades</option>
+                <option th:each="p : ${prioridades}" th:value="${p}" th:text="${p}"
+                        th:selected="${p == filtroPrioridade}"></option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <select name="clienteId" class="form-select">
+                <option value="">Todos os clientes</option>
+                <option th:each="c : ${clientes}" th:value="${c.id}" th:text="${c.nome}"
+                        th:selected="${c.id == filtroClienteId}"></option>
+            </select>
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-outline-primary">Filtrar</button>
+            <a th:href="@{/app/chamados}" class="btn btn-outline-secondary">Limpar</a>
+        </div>
+    </form>
+
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th><th>Título</th><th>Cliente</th><th>Categoria</th>
+                <th>Prioridade</th><th>Status</th><th>Técnico</th><th>Abertura</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="c : ${pagina.content}">
+                <td th:text="${c.id}"></td>
+                <td th:text="${c.titulo}"></td>
+                <td th:text="${c.clienteNome}"></td>
+                <td th:text="${c.categoriaNome}"></td>
+                <td th:text="${c.prioridade}"></td>
+                <td th:text="${c.status}"></td>
+                <td th:text="${c.tecnicoNome != null} ? ${c.tecnicoNome} : '-'"></td>
+                <td th:text="${#temporals.format(c.dataAbertura, 'dd/MM/yyyy HH:mm')}"></td>
+            </tr>
+            <tr th:if="${pagina.empty}">
+                <td colspan="8" class="text-center text-muted">Nenhum chamado encontrado</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Paginação (mantém os filtros) -->
+    <nav th:if="${pagina.totalPages > 1}">
+        <ul class="pagination">
+            <li class="page-item" th:classappend="${pagina.first} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/app/chamados(page=${pagina.number - 1}, status=${filtroStatus}, prioridade=${filtroPrioridade}, clienteId=${filtroClienteId})}">Anterior</a>
+            </li>
+            <li class="page-item disabled">
+                <span class="page-link" th:text="${pagina.number + 1} + ' de ' + ${pagina.totalPages}"></span>
+            </li>
+            <li class="page-item" th:classappend="${pagina.last} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/app/chamados(page=${pagina.number + 1}, status=${filtroStatus}, prioridade=${filtroPrioridade}, clienteId=${filtroClienteId})}">Próxima</a>
+            </li>
+        </ul>
+    </nav>
+</div>
+</body>
+</html>
