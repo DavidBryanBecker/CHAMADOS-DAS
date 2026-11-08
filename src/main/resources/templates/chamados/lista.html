@@ -51,7 +51,7 @@
         <tbody>
             <tr th:each="c : ${pagina.content}">
                 <td th:text="${c.id}"></td>
-                <td th:text="${c.titulo}"></td>
+                <td><a th:href="@{/app/chamados/{id}(id=${c.id})}" th:text="${c.titulo}"></a></td>
                 <td th:text="${c.clienteNome}"></td>
                 <td th:text="${c.categoriaNome}"></td>
                 <td th:text="${c.prioridade}"></td>
