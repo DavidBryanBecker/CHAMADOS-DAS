@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Dashboard')}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: menu}"></nav>
+
+<main class="container my-4">
+    <h1 class="h3 mb-4">Dashboard</h1>
+
+    <div class="card text-center mb-4">
+        <div class="card-body">
+            <div class="text-muted">Total de chamados</div>
+            <div class="display-5" th:text="${resumo.totalChamados}">0</div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <h2 class="h5">Por status</h2>
+            <table class="table table-sm">
+                <tbody>
+                <tr th:each="item : ${resumo.porStatus}">
+                    <td th:text="${item.key}">ABERTO</td>
+                    <td class="text-end" th:text="${item.value}">0</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="col-md-6">
+            <h2 class="h5">Por prioridade</h2>
+            <table class="table table-sm">
+                <tbody>
+                <tr th:each="item : ${resumo.porPrioridade}">
+                    <td th:text="${item.key}">ALTA</td>
+                    <td class="text-end" th:text="${item.value}">0</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>

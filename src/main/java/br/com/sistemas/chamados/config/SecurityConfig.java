@@ -11,6 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 
 @Configuration
 public class SecurityConfig {
@@ -23,12 +24,29 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/h2-console/**", "/swagger-ui/**",
                         "/swagger-ui.html", "/v3/api-docs/**").permitAll()
+                .requestMatchers("/login").permitAll()
+                // Telas (/app): mesmas permissões da API
+                .requestMatchers("/app/tecnicos/**").hasRole("ADMIN")
+                .requestMatchers("/app/categorias/novo").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/app/categorias").hasAnyRole("ADMIN", "TECNICO")
+                .requestMatchers("/app/categorias/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
                 .requestMatchers("/tecnicos/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/categorias/**").hasAnyRole("ADMIN", "TECNICO")
                 .requestMatchers("/categorias/**").hasRole("ADMIN")
                 .anyRequest().hasAnyRole("ADMIN", "TECNICO"))
-            .httpBasic(Customizer.withDefaults());
+            .formLogin(form -> form
+                .loginPage("/login")
+                .defaultSuccessUrl("/app", true)
+                .permitAll())
+            .logout(logout -> logout
+                .logoutSuccessUrl("/login?logout")
+                .permitAll())
+            .httpBasic(Customizer.withDefaults())
+            .exceptionHandling(ex -> ex
+                .defaultAuthenticationEntryPointFor(
+                    new LoginUrlAuthenticationEntryPoint("/login"),
+                    request -> request.getRequestURI().startsWith("/app")));
         return http.build();
     }
 

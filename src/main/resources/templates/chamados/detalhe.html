@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Detalhe do chamado')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: menu}"></nav>
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 mb-0" th:text="'Chamado #' + ${chamado.id} + ' - ' + ${chamado.titulo}"></h1>
+        <a th:href="@{/app/chamados}" class="btn btn-secondary">Voltar</a>
+    </div>
+
+    <div class="alert alert-success" th:if="${sucesso}" th:text="${sucesso}"></div>
+    <div class="alert alert-danger" th:if="${erro}" th:text="${erro}"></div>
+
+    <!-- Dados do chamado -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <p class="mb-3" th:text="${chamado.descricao}"></p>
+            <div class="row">
+                <div class="col-md-3"><strong>Cliente:</strong> <span th:text="${chamado.clienteNome}"></span></div>
+                <div class="col-md-3"><strong>Categoria:</strong> <span th:text="${chamado.categoriaNome}"></span></div>
+                <div class="col-md-2"><strong>Prioridade:</strong> <span th:text="${chamado.prioridade}"></span></div>
+                <div class="col-md-2"><strong>Status:</strong> <span th:text="${chamado.status}"></span></div>
+                <div class="col-md-2"><strong>Técnico:</strong>
+                    <span th:text="${chamado.tecnicoNome != null} ? ${chamado.tecnicoNome} : '-'"></span></div>
+            </div>
+            <hr>
+            <div class="row text-muted small">
+                <div class="col-md-6">Aberto em:
+                    <span th:text="${#temporals.format(chamado.dataAbertura, 'dd/MM/yyyy HH:mm')}"></span></div>
+                <div class="col-md-6" th:if="${chamado.dataFechamento != null}">Fechado em:
+                    <span th:text="${#temporals.format(chamado.dataFechamento, 'dd/MM/yyyy HH:mm')}"></span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ações (só se não estiver fechado) -->
+    <div class="row mb-4" th:if="${!#lists.isEmpty(proximosStatus)}">
+        <div class="col-md-6">
+            <form th:action="@{/app/chamados/{id}/status(id=${chamado.id})}" method="post" class="card card-body">
+                <label for="status" class="form-label">Alterar status</label>
+                <div class="d-flex gap-2">
+                    <select id="status" name="status" class="form-select">
+                        <option th:each="s : ${proximosStatus}" th:value="${s}" th:text="${s}"></option>
+                    </select>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-6">
+            <form th:action="@{/app/chamados/{id}/atribuir(id=${chamado.id})}" method="post" class="card card-body">
+                <label for="tecnicoId" class="form-label">Atribuir técnico</label>
+                <div class="d-flex gap-2">
+                    <select id="tecnicoId" name="tecnicoId" class="form-select">
+                        <option th:each="t : ${tecnicos}" th:value="${t.id}" th:text="${t.nome}"
+                                th:selected="${t.id == chamado.tecnicoId}"></option>
+                    </select>
+                    <button type="submit" class="btn btn-primary">Atribuir</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="alert alert-secondary" th:if="${#lists.isEmpty(proximosStatus)}">
+        Este chamado está fechado: não é possível alterar status nem técnico.
+    </div>
+
+    <!-- Comentários -->
+    <h2 class="h5">Comentários</h2>
+    <ul class="list-group mb-3">
+        <li class="list-group-item" th:each="c : ${chamado.comentarios}">
+            <div class="d-flex justify-content-between">
+                <strong th:text="${c.autor}"></strong>
+                <small class="text-muted" th:text="${#temporals.format(c.data, 'dd/MM/yyyy HH:mm')}"></small>
+            </div>
+            <div th:text="${c.texto}"></div>
+        </li>
+        <li class="list-group-item text-muted" th:if="${#lists.isEmpty(chamado.comentarios)}">
+            Nenhum comentário ainda
+        </li>
+    </ul>
+
+    <form th:action="@{/app/chamados/{id}/comentarios(id=${chamado.id})}"
+          th:object="${comentarioForm}" method="post" novalidate>
+        <div class="mb-2">
+            <label for="texto" class="form-label">Novo comentário</label>
+            <textarea id="texto" th:field="*{texto}" rows="3" class="form-control"
+                      th:classappend="${#fields.hasErrors('texto')} ? 'is-invalid'"></textarea>
+            <div class="invalid-feedback" th:errors="*{texto}"></div>
+        </div>
+        <button type="submit" class="btn btn-success">Comentar</button>
+    </form>
+</div>
+</body>
+</html>
