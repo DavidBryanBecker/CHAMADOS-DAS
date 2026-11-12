@@ -12,7 +12,7 @@
 
     <div class="alert alert-success" th:if="${sucesso}" th:text="${sucesso}"></div>
 
-    <!-- Filtros -->
+    
     <form th:action="@{/app/chamados}" method="get" class="row g-2 mb-3">
         <div class="col-md-3">
             <select name="status" class="form-select">
@@ -65,7 +65,6 @@
         </tbody>
     </table>
 
-    <!-- Paginação (mantém os filtros) -->
     <nav th:if="${pagina.totalPages > 1}">
         <ul class="pagination">
             <li class="page-item" th:classappend="${pagina.first} ? 'disabled'">
